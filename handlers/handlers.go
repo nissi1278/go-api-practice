@@ -13,9 +13,10 @@ import (
 )
 
 func PostArticleHandler(w http.ResponseWriter, req *http.Request) {
-	contentLength, err := strconv.Atoi(req.Header.Get("Content-length"))
+	contentLength, err := strconv.
+		Atoi(req.Header.Get("Content-Length"))
 	if err != nil {
-		http.Error(w, "", http.StatusInternalServerError)
+		http.Error(w, "cannot get content length\n", http.StatusBadRequest)
 		return
 	}
 	reqBodyBuffer := make([]byte, contentLength)
@@ -26,6 +27,20 @@ func PostArticleHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	defer req.Body.Close()
+
+	var reqArticle models.Article
+	if err := json.Unmarshal(reqBodyBuffer, &reqArticle); err != nil {
+		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
+		return
+	}
+
+	article := reqArticle
+	jsonData, err := json.Marshal(article)
+	if err != nil {
+		http.Error(w, "fail to encode json\n", http.StatusInternalServerError)
+		return
+	}
+	w.Write(jsonData)
 }
 
 func ArticleListHandler(w http.ResponseWriter, req *http.Request) {
