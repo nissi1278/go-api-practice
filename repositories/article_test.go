@@ -5,6 +5,7 @@ import (
 
 	"github.com/nissi1278/go-api-practice/models"
 	"github.com/nissi1278/go-api-practice/repositories"
+	"github.com/nissi1278/go-api-practice/repositories/testdata"
 )
 
 func TestSelectArticleList(t *testing.T) {
@@ -28,23 +29,11 @@ func TestSelectArticleDetail(t *testing.T) {
 	}{
 		{
 			testTitle: "subTest1",
-			expected: models.Article{
-				ID:       1,
-				Title:    "firstPost",
-				Contents: "This is my first blog",
-				UserName: "nissi",
-				NiceNum:  4,
-			},
+			expected:  testdata.ArticleTestData[0],
 		},
 		{
 			testTitle: "subTest2",
-			expected: models.Article{
-				ID:       2,
-				Title:    "second Post",
-				Contents: "This is my second blog",
-				UserName: "nissi",
-				NiceNum:  2,
-			},
+			expected:  testdata.ArticleTestData[1],
 		},
 	}
 
@@ -72,19 +61,14 @@ func TestSelectArticleDetail(t *testing.T) {
 			}
 
 			if got.NiceNum != test.expected.NiceNum {
-				t.Errorf("Contents: get %d but want %d\n", got.NiceNum, test.expected.NiceNum)
+				t.Errorf("Nice: get %d but want %d\n", got.NiceNum, test.expected.NiceNum)
 			}
 		})
 	}
 }
 
 func TestInsertArticle(t *testing.T) {
-	article := models.Article{
-		Title:    "Test title",
-		Contents: "Test contents",
-		UserName: "Test username",
-		NiceNum:  3,
-	}
+	article := testdata.InsertArticleTestData
 
 	expectedArticleTitle := "Test title"
 	got, err := repositories.InsertArticle(testDB, article)
@@ -111,7 +95,7 @@ func TestInsertArticle(t *testing.T) {
 
 func TestUpdateNiceNum(t *testing.T) {
 	targetArticleID := 1
-	expectedArticleNice := 5
+	expectedArticleNice := 11
 	err := repositories.UpdateNiceNum(testDB, targetArticleID)
 	if err != nil {
 		t.Fatal(err)
@@ -125,7 +109,7 @@ func TestUpdateNiceNum(t *testing.T) {
 
 	t.Cleanup(func() {
 		const sqlStr = `
-		UPDATE article
+		UPDATE articles
 		SET nice = nice - 1
 		WHERE article_id = ?
 		`
